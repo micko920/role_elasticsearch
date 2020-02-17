@@ -12,7 +12,10 @@ elasticsearch_heap_size_min: 1g
 elasticsearch_heap_size_max: 2g
 
 
-# JNA needs a exec enabled mount. tmpfs in ansible docker is limited by noexec
+# JNA needs a exec enabled mount.
+# tmpfs in ansible docker/molecule is limited by noexec
 elasticsearch_tmp_dir: /var/lib/elasticsearch/tmp
 elasticsearch_user: elasticsearch
 elasticsearch_group: elasticsearch
+
+elasticsearch_cluster_name: "es_cluster"
