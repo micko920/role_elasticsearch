@@ -1,4 +1,11 @@
 ---
+- name: Disable swap
+  become: true
+  become_user: root
+  shell: "swapoff -a"
+  ignore_errors: true
+  when: ansible_swaptotal_mb > 0
+
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
@@ -15,12 +22,6 @@
     state: directory
     mode: 0700
     recurse: true
-
-- name: Disable swap
-  become: true
-  become_user: root
-  command: swapoff -a
-  when: ansible_swaptotal_mb > 0
 
 - name: Remove swapfile from /etc/fstab
   mount:
