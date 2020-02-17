@@ -71,3 +71,8 @@
     port: "{{ elasticsearch_http_port }}"
     delay: 3
     timeout: 300
+
+- name: Set final state of Elasticsearch.
+  service:
+    name: elasticsearch
+    state: "{{ elasticsearch_final_service_state }}"
