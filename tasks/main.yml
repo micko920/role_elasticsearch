@@ -16,14 +16,17 @@
     mode: 0700
     recurse: true
 
+- name: Disable swap
+  become: true
+  become_user: root
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
 - name: Remove swapfile from /etc/fstab
   mount:
     name: swap
     fstype: swap
     state: absent
-- name: Disable swap
-  command: swapoff -a
-  when: ansible_swaptotal_mb > 0
 
 - name: Add or modify hard nofile limits for wildcard domain
   pam_limits:
@@ -31,7 +34,7 @@
     limit_type: hard
     limit_item: nofile
     value: 65535
-    use_max: yes
+    use_max: true
 
 - name: Add or modify hard nofile limits for wildcard domain
   pam_limits:
