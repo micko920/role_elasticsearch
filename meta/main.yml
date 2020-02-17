@@ -1,7 +1,6 @@
 ---
 galaxy_info:
   author:  Michael Green
-  description: Base system setup with ansible
   description: Elasticsearch for Linux.
   company: EAS
 
