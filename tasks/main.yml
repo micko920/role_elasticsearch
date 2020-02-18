@@ -4,7 +4,49 @@
   become_user: root
   shell: "swapoff -a"
   ignore_errors: true
+  register: swapoff_result
   when: ansible_swaptotal_mb > 0
+
+- name: Add or modify hard nofile limits for wildcard domain
+  pam_limits:
+    domain: '*'
+    limit_type: hard
+    limit_item: nofile
+    value: 'unlimited'
+    use_max: true
+
+- name: Add or modify hard nofile limits for wildcard domain
+  pam_limits:
+    domain: '*'
+    limit_type: '-'
+    limit_item: nproc
+    value: 'unlimited'
+    use_max: true
+
+- name: Add or modify memlock limits for wildcard domain
+  pam_limits:
+    domain: '*'
+    limit_type: '-'
+    limit_item: memlock
+    value: 'unlimited'
+    use_max: true
+
+# This needs to be set in the host of the docker container to work
+- name: Set the vm memory map max count
+  sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    sysctl_file: "/etc/sysctl.d/60-elasticsearch.conf"
+  ignore_errors: true
+
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+  when: swapoff_result == 0
 
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
@@ -23,27 +65,6 @@
     mode: 0700
     recurse: true
 
-- name: Remove swapfile from /etc/fstab
-  mount:
-    name: swap
-    fstype: swap
-    state: absent
-
-- name: Add or modify hard nofile limits for wildcard domain
-  pam_limits:
-    domain: '*'
-    limit_type: hard
-    limit_item: nofile
-    value: 65535
-    use_max: true
-
-- name: Add or modify hard nofile limits for wildcard domain
-  pam_limits:
-    domain: '*'
-    limit_type: '-'
-    limit_item: nproc
-    value: 4096
-
 - name: Configure Elasticsearch.
   template:
     src: "{{ item }}.j2"
@@ -59,20 +80,7 @@
 - name: Force a restart if configuration has changed.
   meta: flush_handlers
 
-- name: Start Elasticsearch.
-  service:
-    name: elasticsearch
-    state: "{{ elasticsearch_service_state }}"
-    enabled: "{{ elasticsearch_service_enabled }}"
-
-- name: Make sure Elasticsearch is running before proceeding.
-  wait_for:
-    host: "{{ elasticsearch_network_host }}"
-    port: "{{ elasticsearch_http_port }}"
-    delay: 3
-    timeout: 300
-
-- name: Set final state of Elasticsearch.
+- name: enable and set final state of Elasticsearch service.
   service:
     name: elasticsearch
     state: "{{ elasticsearch_final_service_state }}"
