@@ -88,4 +88,4 @@
   systemd:
     name: elasticsearch
     state: "{{ elasticsearch_final_service_state }}"
-    when: systemd_pid_1 is defined and systemd_pid_1
+  when: systemd_pid_1 is defined and systemd_pid_1
