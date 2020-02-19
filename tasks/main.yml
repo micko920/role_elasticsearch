@@ -3,9 +3,19 @@
   become: true
   become_user: root
   shell: "swapoff -a"
-  ignore_errors: true
   register: swapoff_result
-  when: ansible_swaptotal_mb > 0
+  when:
+    - ansible_swaptotal_mb > 0
+    - ansible_virtualization_type != 'docker'
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+  when:
+    - swapoff_result == 0
+    - ansible_virtualization_type != 'docker'
 
 - name: Add or modify hard nofile limits for wildcard domain
   pam_limits:
@@ -38,15 +48,7 @@
     value: '262144'
     state: present
     sysctl_file: "/etc/sysctl.d/60-elasticsearch.conf"
-  ignore_errors: true
-
-
-- name: Remove swapfile from /etc/fstab
-  mount:
-    name: swap
-    fstype: swap
-    state: absent
-  when: swapoff_result == 0
+  when: ansible_virtualization_type != 'docker'
 
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
@@ -84,3 +86,4 @@
   service:
     name: elasticsearch
     state: "{{ elasticsearch_final_service_state }}"
+    enabled: true
