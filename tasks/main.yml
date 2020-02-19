@@ -77,13 +77,10 @@
   with_items:
     - elasticsearch.yml
     - jvm.options
-  notify: restart elasticsearch
-
-- name: Force a restart if configuration has changed.
-  meta: flush_handlers
 
 - name: enable and set final state of Elasticsearch service.
-  service:
+  systemd:
     name: elasticsearch
     state: "{{ elasticsearch_final_service_state }}"
     enabled: true
+    masked: false
