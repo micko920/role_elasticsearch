@@ -80,12 +80,13 @@
 
 - name: enable Elasticsearch service.
   systemd:
-    name: elasticsearch
+    name: elasticsearch.service
     enabled: true
     masked: false
+  when: systemd_pid_1 is defined and systemd_pid_1
 
 - name: enable and set final state of Elasticsearch service.
   systemd:
-    name: elasticsearch
+    name: elasticsearch.service
     state: "{{ elasticsearch_final_service_state }}"
   when: systemd_pid_1 is defined and systemd_pid_1
