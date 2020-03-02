@@ -8,6 +8,7 @@ elasticsearch_service_enabled: true
 
 elasticsearch_network_host: 0.0.0.0
 elasticsearch_http_port: 9200
+elasticsearch_tcp_port: 9300
 
 elasticsearch_heap_size_min: 2g
 elasticsearch_heap_size_max: 2g
@@ -16,6 +17,8 @@ elasticsearch_heap_size_max: 2g
 # JNA needs a exec enabled mount.
 # tmpfs in ansible docker/molecule is limited by noexec
 elasticsearch_tmp_dir: /var/lib/elasticsearch/tmp
+elasticsearch_data_dir: /data/elasticsearch
+elasticsearch_log_dir: /var/log/elasticsearch
 elasticsearch_user: elasticsearch
 elasticsearch_group: elasticsearch
 

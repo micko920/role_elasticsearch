@@ -58,14 +58,18 @@
     name: elasticsearch
     state: "{{ elasticsearch_package_state }}"
 
-- name: Create the tmp path
+- name: Create the directories
   file:
-    path: "{{ elasticsearch_tmp_dir }}"
+    path: "{{ item }}"
     owner: "{{ elasticsearch_user }}"
     group: "{{ elasticsearch_group }}"
     state: directory
     mode: 0700
     recurse: true
+  with_items:
+    - "{{ elasticsearch_tmp_dir }}"
+    - "{{ elasticsearch_data_dir }}"
+    - "{{ elasticsearch_log_dir }}"
 
 - name: Configure Elasticsearch.
   template:
