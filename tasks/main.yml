@@ -87,8 +87,9 @@
 
 - name: add plugins
   elasticsearch_plugin:
-    name: '{{ elasticsearch_plugins }}'
+    name: "{{ item }}"
     state: present
+  with_items: "{{ elasticsearch_plugins }}"
 
 - name: enable and set final state of Elasticsearch service.
   systemd:
