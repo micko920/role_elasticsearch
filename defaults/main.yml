@@ -20,3 +20,10 @@ elasticsearch_user: elasticsearch
 elasticsearch_group: elasticsearch
 
 elasticsearch_cluster_name: "es_cluster"
+
+
+elasticsearch_plugins:
+  - analysis-icu
+  - analysis-kuromoji
+  - analysis-smartcn
+  - analysis-stempel
