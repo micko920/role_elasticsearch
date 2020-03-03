@@ -15,17 +15,17 @@
 #
 # Use a descriptive name for your cluster:
 #
-#cluster.name: {{ elasticsearch_cluster_name }}
+cluster.name: ${ES_CLUSTER_NAME: {{ elasticsearch_cluster_name }}}
 #
 # ------------------------------------ Node ------------------------------------
 #
 # Use a descriptive name for the node:
 #
 #node.name: node-1
-node.name: ${HOSTNAME}
-#node.master: true
-#node.data: true
-#node.ingest: true
+node.name: ${ES_HOSTNAME:${HOSTNAME} }
+node.master: ${ES_NODE_MASTER:true}
+node.data: ${ES_NODE_DATA:true}
+node.ingest: ${ES_NODE_INGEST:true}
 #node.max_local_storage_nodes: 1
 #
 # Add custom attributes to the node:
@@ -36,11 +36,11 @@ node.name: ${HOSTNAME}
 #
 # Path to directory where to store the data (separate multiple locations by comma):
 #
-path.data: {{ elasticsearch_data_dir }}
+path.data: ${ES_PATH_DATA:{{ elasticsearch_data_dir }}}
 #
 # Path to log files:
 #
-path.logs: {{ elasticsearch_log_dir }}
+path.logs: ${ES_PATH_LOGS:{{ elasticsearch_log_dir }}}
 #
 # ----------------------------------- Memory -----------------------------------
 #
@@ -78,17 +78,17 @@ transport.tcp.port: {{ elasticsearch_tcp_port }}
 # Pass an initial list of hosts to perform discovery when new node is started:
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
-discovery.zen.ping.unicast.hosts: ["127.0.0.1"]
+discovery.zen.ping.unicast.hosts: ${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS:["127.0.0.1"]}
 #
 # Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
 #
 #discovery.zen.minimum_master_nodes:
 #
 # For more information, consult the zen discovery module documentation.
-#discovery.zen.minimum_master_nodes: 2
-#discovery.zen.ping_timeout: 5s
-#discovery.seed_hosts: ["d-gp2-kyles-1", "d-gp2-kyles-2", "d-gp2-kyles-3"]
-#cluster.initial_master_nodes: ["d-gp2-kyles-1", "d-gp2-kyles-2", "d-gp2-kyles-3"]
+discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:2}
+discovery.zen.ping_timeout: 5s
+discovery.seed_hosts: ${ES_DISCOVERY_SEED_HOSTS:?Env Variable not set discovery.seed_hosts}
+cluster.initial_master_nodes: ${ES_CLUSTER_INITAL_MASTER_NODES:?Env Variable not set cluster.initial_master_nodes}
 #
 # ---------------------------------- Gateway -----------------------------------
 #
