@@ -22,7 +22,7 @@ cluster.name: ${ES_CLUSTER_NAME:{{ elasticsearch_cluster_name }}}
 # Use a descriptive name for the node:
 #
 #node.name: node-1
-node.name: ${ES_HOSTNAME:?Env Variable not set node.name}
+node.name: ${ES_NODE_NAME:es-node}
 node.master: ${ES_NODE_MASTER:true}
 node.data: ${ES_NODE_DATA:true}
 node.ingest: ${ES_NODE_INGEST:true}
