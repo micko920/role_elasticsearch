@@ -24,6 +24,9 @@ elasticsearch_group: elasticsearch
 
 elasticsearch_cluster_name: "es_cluster"
 
+# Set this as a default, can be overriden by ENV variable
+elasticsearch_node_name: "es-node"
+
 
 elasticsearch_plugins:
   - analysis-icu
