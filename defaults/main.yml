@@ -1,5 +1,6 @@
 ---
 elasticsearch_version: '7.x'
+elasticsearch_package: elasticsearch
 elasticsearch_package_state: present
 
 elasticsearch_service_state: started
@@ -13,6 +14,7 @@ elasticsearch_tcp_port: 9300
 elasticsearch_heap_size_min: 2g
 elasticsearch_heap_size_max: 2g
 
+elasticsearch_extra_options: ''
 
 # JNA needs a exec enabled mount.
 # tmpfs in ansible docker/molecule is limited by noexec
@@ -22,6 +24,7 @@ elasticsearch_log_dir: /var/log/elasticsearch
 elasticsearch_user: elasticsearch
 elasticsearch_group: elasticsearch
 
+elasticsearch_single_node: true
 elasticsearch_cluster_name: "es_cluster"
 
 # Set this as a default, can be overriden by ENV variable

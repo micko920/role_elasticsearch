@@ -1,4 +1,6 @@
 ---
+- include_tasks: is_systemd.yml
+
 - name: Disable swap
   become: true
   become_user: root
@@ -55,7 +57,7 @@
 
 - name: Install Elasticsearch.
   package:
-    name: elasticsearch
+    name: "{{ elasticsearch_package }}"
     state: "{{ elasticsearch_package_state }}"
 
 - name: Create the directories
@@ -71,23 +73,74 @@
     - "{{ elasticsearch_data_dir }}"
     - "{{ elasticsearch_log_dir }}"
 
-- name: Configure Elasticsearch.
+- name: create elasticsearch service instance
+  import_role:
+    name: micko920.role_createservice
+  vars:
+    service_list:
+      - name: "elasticsearch"
+        description: "elasticsearch"
+        documentation: "https://www.elastic.co"
+        start_command: "/usr/share/elasticsearch/bin/systemd-entrypoint -p ${PID_DIR}/elasticsearch.pid --quiet"
+        type: "notify"
+        user_name: "elasticsearch"
+        group_name: "elasticsearch"
+        after: "network.target network-online.target"
+        requires: "network-online.target"
+        environment_variables:
+          ES_HOME: "/usr/share/elasticsearch"
+          ES_PATH_CONF: "/etc/elasticsearch"
+          PID_DIR: "/var/run/elasticsearch"
+          ES_SD_NOTIFY: "true"
+        extra_values:
+          EnvironmentFile: "-/etc/default/elasticsearch"
+          KillMode: "process"
+          KillSignal: "SIGTERM"
+          LimitAS: "infinity"
+          LimitFSIZE: "infinity"
+          LimitNOFILE: "65535"
+          LimitNPROC: "4096"
+          RuntimeDirectory: "elasticsearch"
+          SendSIGKILL: "no"
+          StandardError: "inherit"
+          StandardOutput: "journal"
+          SuccessExitStatus: "143"
+          TimeoutStartSec: "75"
+          TimeoutStopSec: "0"
+          WorkingDirectory: "/usr/share/elasticsearch"
+  when: systemd_pid_1 is defined and systemd_pid_1
+
+- name: Configure Elasticsearch 7+.
   template:
-    src: "{{ item }}.j2"
-    dest: /etc/elasticsearch/{{ item }}
+    src: "{{ item | basename }}.j2"
+    dest: "{{ item }}"
     owner: root
     group: elasticsearch
     mode: 0660
   with_items:
-    - elasticsearch.yml
-    - jvm.options
+    - /etc/elasticsearch/elasticsearch.yml
+    - /etc/elasticsearch/jvm.options
+    - /etc/elasticsearch/jvm.options.d/heap.options
+  notify: restart elasticsearch
+  when: elasticsearch_version[0] | int >= 7
+
+- name: Force a restart if configuration has changed.
+  meta: flush_handlers
 
 - name: enable Elasticsearch service.
   systemd:
-    name: elasticsearch.service
+    name: elasticsearch
     enabled: true
+    state: started
     masked: false
   when: systemd_pid_1 is defined and systemd_pid_1
+
+- name: Make sure Elasticsearch is running before proceeding.
+  wait_for:
+    host: "{{ elasticsearch_network_host }}"
+    port: "{{ elasticsearch_http_port }}"
+    delay: 3
+    timeout: 300
 
 - name: add plugins
   elasticsearch_plugin:
@@ -97,6 +150,7 @@
 
 - name: enable and set final state of Elasticsearch service.
   systemd:
-    name: elasticsearch.service
+    name: elasticsearch
     state: "{{ elasticsearch_final_service_state }}"
+    enabled: "{{ elasticsearch_service_enabled }}"
   when: systemd_pid_1 is defined and systemd_pid_1
